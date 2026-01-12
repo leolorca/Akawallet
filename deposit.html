@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AKA Wallet - Depositar</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="logo.svg" type="image/svg+xml">
+</head>
+<body>
+  <div class="container">
+    <div class="text-center mb-3">
+      <img src="logo.svg" alt="AKA Wallet Logo" width="80">
+    </div>
+    <h2>Depositar</h2>
+    <div id="alert-container"></div>
+    <div class="balance-label">Saldo actual:</div>
+    <div class="balance-display" id="saldoActualDisplay">$0</div>
+    <form id="depositForm">
+      <div class="form-group mb-3">
+        <label for="depositAmount">Monto a depositar:</label>
+        <input type="number" class="form-control" id="depositAmount" placeholder="Ingrese el monto" min="1">
+      </div>
+      <div id="montoDepositado" style="display: none;" class="alert alert-info"></div>
+      <div class="nav-buttons">
+        <button type="submit" class="btn btn-primary">Realizar depósito</button>
+        <a href="menu.html" class="btn btn-secondary">Volver al Menú Principal</a>
+      </div>
+    </form>
+  </div>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      var saldo = localStorage.getItem('saldo');
+      if (!saldo) {
+        saldo = 60000;
+        localStorage.setItem('saldo', saldo);
+      }
+      var saldoFormateado = '$' + parseInt(saldo);
+      $('#saldoActualDisplay').text(saldoFormateado);
+
+      $('#depositForm').submit(function(e) {
+        e.preventDefault();
+        
+        var monto = $('#depositAmount').val();
+        var montoNumero = parseInt(monto);
+
+        if (monto === '' || montoNumero < 1) {
+          var alerta = '<div class="alert alert-danger">Ingrese un monto válido</div>';
+          $('#alert-container').html(alerta);
+        } else {
+          var saldoActual = parseInt(localStorage.getItem('saldo'));
+          var nuevoSaldo = saldoActual + montoNumero;
+          localStorage.setItem('saldo', nuevoSaldo);
+
+          var textoDeposito = 'Monto depositado: $' + montoNumero;
+          $('#montoDepositado').text(textoDeposito);
+          $('#montoDepositado').show();
+
+          var alerta = '<div class="alert alert-success">Depósito realizado con éxito. Nuevo saldo: $' + nuevoSaldo + '</div>';
+          $('#alert-container').html(alerta);
+
+          var transacciones = localStorage.getItem('transacciones');
+          if (transacciones) {
+            transacciones = JSON.parse(transacciones);
+          } else {
+            transacciones = [];
+          }
+          transacciones.push({ tipo: 'deposito', descripcion: 'Depósito', monto: montoNumero });
+          localStorage.setItem('transacciones', JSON.stringify(transacciones));
+
+          setTimeout(function() {
+            window.location.href = 'menu.html';
+          }, 2000);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

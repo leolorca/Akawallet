@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AKA Wallet - Últimos Movimientos</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="logo.svg" type="image/svg+xml">
+</head>
+<body>
+  <div class="container">
+    <div class="text-center mb-3">
+      <img src="logo.svg" alt="AKA Wallet Logo" width="80">
+    </div>
+    <h2>Últimos Movimientos</h2>
+    
+    <div class="form-group mb-3">
+      <label for="filtroTipo">Filtrar por tipo:</label>
+      <select class="form-control" id="filtroTipo">
+        <option value="todos">Todos</option>
+        <option value="compra">Compras</option>
+        <option value="deposito">Depósitos</option>
+        <option value="transferencia">Transferencias</option>
+      </select>
+    </div>
+    
+    <ul id="movimientosList" class="list-group mb-3">
+    </ul>
+    
+    <div class="nav-buttons">
+      <a href="menu.html" class="btn btn-secondary">Volver al Menú Principal</a>
+    </div>
+  </div>
+  
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      var listaTransacciones = [
+        { tipo: 'compra', descripcion: 'Compra en línea', monto: -5000 },
+        { tipo: 'deposito', descripcion: 'Depósito', monto: 10000 },
+        { tipo: 'transferencia', descripcion: 'Transferencia recibida', monto: 7500 },
+        { tipo: 'compra', descripcion: 'Compra en línea', monto: -5550 },
+        { tipo: 'deposito', descripcion: 'Depósito misma cuenta', monto: 10500 },
+        { tipo: 'transferencia', descripcion: 'Transferencia recibida', monto: 7575 }
+      ];
+
+      var transaccionesStorage = localStorage.getItem('transacciones');
+      if (transaccionesStorage) {
+        var transaccionesGuardadas = JSON.parse(transaccionesStorage);
+        for (var i = 0; i < transaccionesGuardadas.length; i++) {
+          listaTransacciones.push(transaccionesGuardadas[i]);
+        }
+      }
+
+      function getTipoTransaccion(tipo) {
+        if (tipo === 'compra') {
+          return 'Compra';
+        } else if (tipo === 'deposito') {
+          return 'Depósito';
+        } else if (tipo === 'transferencia') {
+          return 'Transferencia';
+        } else {
+          return 'Movimiento';
+        }
+      }
+
+      function mostrarUltimosMovimientos(filtro) {
+        $('#movimientosList').html('');
+        
+        for (var i = 0; i < listaTransacciones.length; i++) {
+          var transaccion = listaTransacciones[i];
+          
+          var mostrar = false;
+          if (filtro === 'todos') {
+            mostrar = true;
+          } else if (transaccion.tipo === filtro) {
+            mostrar = true;
+          }
+          
+          if (mostrar) {
+            var colorMonto = '#e74c3c';
+            if (transaccion.monto > 0) {
+              colorMonto = '#2ecc71';
+            }
+            
+            var signoMonto = '';
+            if (transaccion.monto > 0) {
+              signoMonto = '+';
+            }
+            
+            var montoAbs = transaccion.monto;
+            if (montoAbs < 0) {
+              montoAbs = montoAbs * -1;
+            }
+            
+            var html = '<li class="list-group-item">';
+            html = html + '<div style="display: flex; justify-content: space-between;">';
+            html = html + '<span>' + getTipoTransaccion(transaccion.tipo) + ': ' + transaccion.descripcion + '</span>';
+            html = html + '<span style="color: ' + colorMonto + '; font-weight: bold;">' + signoMonto + '$' + montoAbs + '</span>';
+            html = html + '</div></li>';
+            
+            $('#movimientosList').append(html);
+          }
+        }
+      }
+
+      mostrarUltimosMovimientos('todos');
+
+      $('#filtroTipo').change(function() {
+        var filtro = $('#filtroTipo').val();
+        mostrarUltimosMovimientos(filtro);
+      });
+    });
+  </script>
+</body>
+</html>
